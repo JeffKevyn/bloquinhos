@@ -1,22 +1,25 @@
 :root {
-    --gold-primary: #FFD700;      /* Dourado brilhante */
-    --gold-secondary: #DAA520;    /* Dourado mais escuro */
-    --gold-light: #FFDF00;        /* Amarelo dourado */
-    --gold-pale: #FFF8DC;         /* Creme dourado */
-    --gold-dark: #B8860B;         /* Dourado escuro */
-    --background: #2C2810;        /* Fundo escuro dourado */
+    --primary: #40E0D0;          /* Turquesa principal */
+    --secondary: #48D1CC;        /* Turquesa médio */
+    --background: #15202B;       /* Fundo escuro do Twitter */
+    --hover: #7FFFD4;           /* Turquesa claro para hover */
+    --text: #E7E9EA;            /* Cor do texto principal */
+    --text-secondary: #8B98A5;  /* Cor do texto secundário */
+    --border: rgba(64, 224, 208, 0.2); /* Bordas sutis em turquesa */
+    --card-bg: rgba(64, 224, 208, 0.1); /* Fundo dos cards */
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: "Comic Sans MS", "Comic Sans", cursive;
 }
 
 body {
     font-family: Arial, sans-serif;
     background-color: var(--background);
-    color: var(--gold-pale);
+    color: var(--text);
     min-height: 100vh;
     margin: 0;
     padding: 0;
@@ -34,8 +37,8 @@ body {
 
 /* Sidebar */
 .profile-sidebar {
-    background-color: rgba(218, 165, 32, 0.1);
-    border: 1px solid var(--gold-secondary);
+    background-color: var(--card-bg);
+    border: 1px solid var(--border);
     padding: 20px;
     border-radius: 15px;
     display: flex;
@@ -56,8 +59,8 @@ body {
     height: 150px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid var(--gold-primary);
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+    border: 2px solid var(--primary);
+    box-shadow: 0 0 15px rgba(232, 162, 0, 0.15);
 }
 
 .profile-info {
@@ -72,8 +75,8 @@ body {
 }
 
 .tweet-box {
-    background-color: rgba(218, 165, 32, 0.1);
-    border: 1px solid var(--gold-secondary);
+    background-color: var(--card-bg);
+    border: 1px solid var(--border);
     padding: 20px;
     border-radius: 15px;
     margin-bottom: 20px;
@@ -82,20 +85,20 @@ body {
 .tweet-textarea {
     width: 100%;
     min-height: 100px;
-    background-color: rgba(255, 223, 0, 0.1);
-    border: 1px solid var(--gold-secondary);
+    background-color: transparent;
+    border: 1px solid var(--border);
     border-radius: 10px;
-    color: var(--gold-pale);
+    color: var(--text);
     font-size: 1.1em;
     resize: none;
     padding: 15px;
-    transition: all 0.3s ease;
+    transition: border-color 0.3s ease;
+    font-family: "Comic Sans MS", "Comic Sans", cursive;
 }
 
 .tweet-textarea:focus {
+    border-color: var(--primary);
     outline: none;
-    border-color: var(--gold-primary);
-    box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
 }
 
 .tweet-actions {
@@ -106,8 +109,9 @@ body {
 }
 
 #charCount {
-    color: var(--gold-light);
+    color: var(--text-secondary);
     opacity: 0.7;
+    font-family: "Comic Sans MS", "Comic Sans", cursive;
 }
 
 .tweets-container {
@@ -117,17 +121,16 @@ body {
 }
 
 .tweet {
-    background-color: rgba(218, 165, 32, 0.1);
-    border: 1px solid var(--gold-secondary);
+    background-color: var(--card-bg);
+    border: 1px solid var(--border);
     padding: 20px;
     border-radius: 15px;
     margin-bottom: 15px;
-    transition: all 0.3s ease;
+    transition: transform 0.3s ease;
 }
 
 .tweet:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.1);
 }
 
 .tweet-header {
@@ -145,13 +148,15 @@ body {
 }
 
 .tweet-name {
-    color: var(--gold-primary);
+    color: var(--text);
     font-weight: bold;
+    font-family: "Comic Sans MS", "Comic Sans", cursive;
 }
 
 .tweet-time {
-    color: var(--gold-light);
+    color: var(--text-secondary);
     opacity: 0.7;
+    font-family: "Comic Sans MS", "Comic Sans", cursive;
 }
 
 .tweet-content {
@@ -159,23 +164,24 @@ body {
     line-height: 1.5;
     white-space: pre-wrap;
     word-wrap: break-word;
+    font-family: "Comic Sans MS", "Comic Sans", cursive;
 }
 
 /* Botões */
 .btn-primary {
-    background-color: var(--gold-primary);
+    background-color: var(--primary);
     color: var(--background);
     border: none;
     font-weight: bold;
     padding: 10px 20px;
     border-radius: 20px;
     transition: all 0.3s ease;
+    font-family: "Comic Sans MS", "Comic Sans", cursive;
 }
 
 .btn-primary:hover {
-    background-color: var(--gold-secondary);
+    background-color: var(--hover);
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
 }
 
 /* Animações */
@@ -216,8 +222,8 @@ body {
     }
 
     .logo-image {
-        width: 150px;
-        height: 150px;
+        width: 120px;
+        height: 120px;
     }
 
     .site-title {
@@ -238,7 +244,7 @@ body {
 
 .verified-badge::before {
     content: "✓";
-    background-color: var(--gold-primary);
+    background-color: var(--primary);
     color: var(--background);
     border-radius: 50%;
     font-size: 11px;
@@ -285,19 +291,18 @@ body {
 
 /* Inputs */
 .form-control {
-    background-color: rgba(255, 223, 0, 0.1);
-    border: 1px solid var(--gold-secondary);
-    color: var(--gold-pale);
+    background-color: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
     border-radius: 10px;
     padding: 10px 15px;
-    transition: all 0.3s ease;
+    transition: border-color 0.3s ease;
+    font-family: "Comic Sans MS", "Comic Sans", cursive;
 }
 
 .form-control:focus {
+    border-color: var(--primary);
     outline: none;
-    border-color: var(--gold-primary);
-    box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
-    background-color: rgba(255, 248, 220, 0.15);
 }
 
 /* Adicione no seu CSS */
@@ -310,27 +315,32 @@ body {
 }
 
 .logo-image {
-    width: 120px;
-    height: 120px;
+    width: 140px;
+    height: 140px;
     object-fit: cover;
     border-radius: 15px;
     margin-bottom: 15px;
-    border: 2px solid var(--gold-primary);
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
-    transition: all 0.3s ease;
+    transition: transform 0.3s ease;
 }
 
 .logo-image:hover {
     transform: scale(1.02);
-    box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
 }
 
 .site-title {
-    color: var(--gold-primary);
+    color: var(--primary);
     font-size: 2.5em;
     font-weight: bold;
     text-align: center;
     margin: 10px 0;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
     letter-spacing: 2px;
+}
+
+/* Ajuste responsivo para a logo */
+@media (max-width: 768px) {
+    .logo-image {
+        width: 120px;
+        height: 120px;
+    }
 }
