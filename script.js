@@ -1,14 +1,14 @@
-// Configuração do Firebase
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-    apiKey: "AIzaSyAiQwg5sxVTQqVT5-9_144LRkXwUYEQyxg",
-    authDomain: "bloquinhos-b1478.firebaseapp.com",
-    databaseURL: "https://bloquinhos-b1478-default-rtdb.firebaseio.com",
-    projectId: "bloquinhos-b1478",
-    storageBucket: "bloquinhos-b1478.appspot.com",
-    messagingSenderId: "46091311744",
-    appId: "1:46091311744:web:a5e1ab6d9f5a8d0b9f0e1a"
+  apiKey: "AIzaSyD_5SNVK5Q6bnB555zoscl6B9pyZrhOrgM",
+  authDomain: "bequiwitter.firebaseapp.com",
+  databaseURL: "https://bequiwitter-default-rtdb.firebaseio.com",
+  projectId: "bequiwitter",
+  storageBucket: "bequiwitter.firebasestorage.app",
+  messagingSenderId: "483644278868",
+  appId: "1:483644278868:web:74c03b4eabb261654905c1",
+  measurementId: "G-66YRW7LB4Z"
 };
-
 // Inicializar Firebase
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
