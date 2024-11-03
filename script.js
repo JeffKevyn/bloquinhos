@@ -213,4 +213,103 @@ document.addEventListener('DOMContentLoaded', function() {
         const remaining = 280 - this.value.length;
         document.getElementById('charCount').textContent = remaining;
     });
-}); 
+});
+
+// Função para verificar se um usuário está na lista de verificados
+function checkVerified(userId) {
+    return database.ref('verifiedUsers/' + userId).once('value')
+        .then(snapshot => {
+            return snapshot.exists(); // Retorna true se o usuário estiver verificado
+        });
+}
+
+// Função para adicionar um usuário à lista de verificados
+function addVerifiedUser(userId) {
+    return database.ref('verifiedUsers/' + userId).set(true)
+        .then(() => {
+            console.log('Usuário verificado com sucesso!');
+            return true;
+        })
+        .catch(error => {
+            console.error('Erro ao verificar usuário:', error);
+            return false;
+        });
+}
+
+// Função para remover a verificação de um usuário
+function removeVerifiedUser(userId) {
+    return database.ref('verifiedUsers/' + userId).remove()
+        .then(() => {
+            console.log('Verificação removida com sucesso!');
+            return true;
+        })
+        .catch(error => {
+            console.error('Erro ao remover verificação:', error);
+            return false;
+        });
+}
+
+// Função para renderizar um tweet
+function renderTweet(tweet, container) {
+    checkVerified(tweet.userId).then(isVerified => {
+        const tweetElement = document.createElement('div');
+        tweetElement.className = `tweet ${tweet.isPinned ? 'pinned' : ''}`;
+        
+        const time = new Date(tweet.timestamp).toLocaleString();
+        
+        tweetElement.innerHTML = `
+            ${tweet.isPinned ? '<div class="pinned-badge"><i class="fas fa-thumbtack"></i> Tweet Fixado</div>' : ''}
+            <div class="tweet-header">
+                <img src="${tweet.userPhoto}" alt="Foto de perfil">
+                <div class="tweet-name-container">
+                    <span class="tweet-name">${tweet.userName}</span>
+                    ${isVerified ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
+                </div>
+                <span class="tweet-time">${time}</span>
+                ${ADMIN_IDS.includes(userId) ? `
+                    <button onclick="${isVerified ? 'removeVerifiedUser' : 'addVerifiedUser'}('${tweet.userId}')" 
+                            class="verify-button ${isVerified ? 'verified' : ''}">
+                        ${isVerified ? 'Remover Verificação' : 'Verificar Usuário'}
+                    </button>
+                ` : ''}
+            </div>
+            <div class="tweet-content">${tweet.text}</div>
+            ${tweet.image ? `<img src="${tweet.image}" alt="Tweet image" class="tweet-image">` : ''}
+            <div class="tweet-actions">
+                <button onclick="toggleLike('${tweet.id}')" class="like-button ${tweet.likedBy && tweet.likedBy[userId] ? 'liked' : ''}">
+                    <i class="fa-heart ${tweet.likedBy && tweet.likedBy[userId] ? 'fas' : 'far'}"></i>
+                    <span class="like-count">${tweet.likes || 0}</span>
+                </button>
+            </div>
+        `;
+        
+        container.appendChild(tweetElement);
+    });
+}
+
+// Lista de IDs de administradores que podem verificar usuários (coloque no início do arquivo)
+const ADMIN_IDS = ['user_0mgztq1g9']; // Substitua 'seu_id_aqui' pelo seu userId real do Firebase
+
+// Função para verificar se o usuário atual é um administrador
+function isAdmin() {
+    return ADMIN_IDS.includes(userId);
+}
+
+// Função para gerenciar verificação de usuários (apenas para admins)
+function manageVerification(targetUserId, shouldVerify) {
+    if (!isAdmin()) {
+        console.error('Acesso negado: apenas administradores podem gerenciar verificações');
+        return;
+    }
+
+    if (shouldVerify) {
+        addVerifiedUser(targetUserId);
+    } else {
+        removeVerifiedUser(targetUserId);
+    }
+}
+
+// Exemplo de uso:
+// manageVerification('id_do_usuario', true); // Para verificar um usuário
+// manageVerification('id_do_usuario', false); // Para remover a verificação
+  

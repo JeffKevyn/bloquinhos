@@ -441,11 +441,29 @@ body {
 }
 
 .verified-badge {
-    color: #FFD700; /* Cor dourada */
-    font-size: 16px;
+    color: #1DA1F2; /* Cor azul do Twitter */
     margin-left: 4px;
+    font-size: 16px;
 }
 
 .verified-badge:hover {
     filter: brightness(1.2);
+}
+
+.verify-button {
+    background-color: #1DA1F2;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.verify-button.verified {
+    background-color: #DC3545;
+}
+
+.verify-button:hover {
+    opacity: 0.8;
 }
