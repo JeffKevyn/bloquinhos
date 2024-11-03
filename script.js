@@ -22,114 +22,127 @@ if (!userId) {
     localStorage.setItem('userId', userId);
 }
 
-// Adicione no início do arquivo, após a configuração do Firebase
+// Configuração inicial
 let isVerified = false;
+let currentUser = null;
 
-// Carregar perfil do usuário
-function loadUserProfile() {
-    database.ref('users/' + userId).once('value').then((snapshot) => {
-        const userData = snapshot.val();
-        if (userData) {
-            document.getElementById('userNameInput').value = userData.name || '';
-            document.getElementById('profileImage').src = userData.photoUrl || 'https://via.placeholder.com/150';
-        }
-    });
+// Função para verificar usuário
+function checkVerification(username, password) {
+    return database.ref('verifiedUsers').child(username).once('value')
+        .then((snapshot) => {
+            const userData = snapshot.val();
+            return userData && userData.password === password;
+        });
 }
 
-// Atualizar perfil
+// Função para atualizar perfil
 async function updateProfile() {
     const nameInput = document.getElementById('userNameInput');
     const passwordInput = document.getElementById('userPasswordInput');
-    const imageFile = document.getElementById('imageUpload').files[0];
-    
-    // Verifica se o nome e senha correspondem a um usuário verificado
     const username = nameInput.value.trim();
     const password = passwordInput.value.trim();
-    
-    isVerified = verifiedUsers[username] && verifiedUsers[username].password === password;
-    
-    let photoUrl = document.getElementById('profileImage').src;
-    
-    if (imageFile) {
-        const imageRef = storage.ref('profile-images/' + userId);
-        imageRef.put(imageFile).then(() => {
-            return imageRef.getDownloadURL();
-        }).then(url => {
-            photoUrl = url;
-            saveProfileData(username, photoUrl);
+
+    try {
+        isVerified = await checkVerification(username, password);
+        
+        let photoUrl = document.getElementById('profileImage').src;
+        const imageFile = document.getElementById('imageUpload').files[0];
+
+        if (imageFile) {
+            const imageRef = storage.ref('profile-images/' + userId);
+            const snapshot = await imageRef.put(imageFile);
+            photoUrl = await snapshot.ref.getDownloadURL();
+        }
+
+        // Salvar dados do usuário
+        await database.ref('users/' + userId).set({
+            name: username,
+            photoUrl: photoUrl,
+            isVerified: isVerified
         });
-    } else {
-        saveProfileData(username, photoUrl);
+
+        currentUser = {
+            name: username,
+            photoUrl: photoUrl,
+            isVerified: isVerified
+        };
+
+        alert(isVerified ? 'Perfil verificado e atualizado!' : 'Perfil atualizado!');
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao atualizar perfil');
     }
 }
 
-// Função para salvar dados do perfil
-function saveProfileData(name, photoUrl) {
-    database.ref('users/' + userId).set({
-        name: name,
-        photoUrl: photoUrl,
-        isVerified: isVerified
-    }).then(() => {
-        if (isVerified) {
-            alert('Perfil verificado e atualizado com sucesso!');
-        } else {
-            alert('Perfil atualizado!');
-        }
-    }).catch(error => {
-        console.error('Erro ao atualizar perfil:', error);
-        alert('Erro ao atualizar perfil');
-    });
-}
-
-// Postar tweet
+// Função para postar tweet
 function postTweet() {
     const tweetInput = document.getElementById('tweetInput');
     const tweetText = tweetInput.value.trim();
     
-    if (!tweetText) return;
+    if (!tweetText || !currentUser) return;
 
-    database.ref('users/' + userId).once('value').then((snapshot) => {
-        const userData = snapshot.val();
-        
-        database.ref('tweets').push({
-            userId: userId,
-            userName: userData.name || 'Anônimo',
-            userPhoto: userData.photoUrl || 'https://via.placeholder.com/150',
-            text: tweetText,
-            isVerified: userData.isVerified || false,
-            timestamp: firebase.database.ServerValue.TIMESTAMP
-        });
-
+    database.ref('tweets').push({
+        userId: userId,
+        userName: currentUser.name,
+        userPhoto: currentUser.photoUrl,
+        text: tweetText,
+        isVerified: currentUser.isVerified,
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+    }).then(() => {
         tweetInput.value = '';
+        document.getElementById('charCount').textContent = '280';
+    }).catch(error => {
+        console.error('Erro ao postar tweet:', error);
+        alert('Erro ao postar tweet');
     });
 }
 
-// Carregar tweets
+// Função para carregar tweets
 function loadTweets() {
     const tweetsContainer = document.getElementById('tweetsContainer');
     
-    database.ref('tweets').orderByChild('timestamp').on('child_added', (snapshot) => {
-        const tweet = snapshot.val();
-        const tweetElement = document.createElement('div');
-        tweetElement.className = 'tweet';
-        
-        const time = new Date(tweet.timestamp).toLocaleString();
-        
-        tweetElement.innerHTML = `
-            <div class="tweet-header">
-                <img src="${tweet.userPhoto}" alt="Foto de perfil">
-                <div class="tweet-name-container">
-                    <span class="tweet-name">${tweet.userName}</span>
-                    ${tweet.isVerified ? '<span class="verified-badge">✓</span>' : ''}
+    database.ref('tweets')
+        .orderByChild('timestamp')
+        .limitToLast(100)
+        .on('child_added', (snapshot) => {
+            const tweet = snapshot.val();
+            const tweetElement = document.createElement('div');
+            tweetElement.className = 'tweet';
+            
+            const time = new Date(tweet.timestamp).toLocaleString();
+            
+            tweetElement.innerHTML = `
+                <div class="tweet-header">
+                    <img src="${tweet.userPhoto}" alt="Foto de perfil">
+                    <div class="tweet-name-container">
+                        <span class="tweet-name">${tweet.userName}</span>
+                        ${tweet.isVerified ? '<span class="verified-badge">✓</span>' : ''}
+                    </div>
+                    <span class="tweet-time">${time}</span>
                 </div>
-                <span class="tweet-time">${time}</span>
-            </div>
-            <div class="tweet-content">${tweet.text}</div>
-        `;
-        
-        tweetsContainer.insertBefore(tweetElement, tweetsContainer.firstChild);
-    });
+                <div class="tweet-content">${tweet.text}</div>
+            `;
+            
+            tweetsContainer.insertBefore(tweetElement, tweetsContainer.firstChild);
+        });
 }
+
+// Carregar perfil do usuário ao iniciar
+function loadUserProfile() {
+    database.ref('users/' + userId).once('value')
+        .then((snapshot) => {
+            const userData = snapshot.val();
+            if (userData) {
+                currentUser = userData;
+                document.getElementById('userNameInput').value = userData.name || '';
+                document.getElementById('profileImage').src = userData.photoUrl || 'https://via.placeholder.com/150';
+            }
+        });
+}
+
+// Inicialização
+loadUserProfile();
+loadTweets();
 
 // Contador de caracteres
 document.getElementById('tweetInput').addEventListener('input', function() {
@@ -147,10 +160,6 @@ document.getElementById('imageUpload').addEventListener('change', function() {
         reader.readAsDataURL(this.files[0]);
     }
 });
-
-// Inicializar
-loadUserProfile();
-loadTweets();
 
 // Adicione um listener para o botão Enter no textarea
 document.getElementById('tweetInput').addEventListener('keypress', function(e) {
