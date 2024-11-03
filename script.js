@@ -58,18 +58,25 @@ function postTweet() {
     const userName = document.getElementById('userNameInput').value.trim() || 'Anônimo';
     const photoUrl = document.getElementById('profileImage').src;
 
-    const newTweet = {
-        userId: userId,
-        userName: userName,
-        userPhoto: photoUrl,
-        text: tweetText,
-        image: tweetImage,
-        likes: 0,
-        likedBy: {},
-        timestamp: firebase.database.ServerValue.TIMESTAMP
-    };
+    // Verificar se o usuário está na lista de verificados
+    database.ref('verifiedUsers').child(userName).once('value')
+        .then((snapshot) => {
+            const isVerified = snapshot.exists();
 
-    database.ref('tweets').push(newTweet)
+            const newTweet = {
+                userId: userId,
+                userName: userName,
+                userPhoto: photoUrl,
+                text: tweetText,
+                image: tweetImage,
+                isVerified: isVerified,
+                likes: 0,
+                likedBy: {},
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            };
+
+            return database.ref('tweets').push(newTweet);
+        })
         .then(() => {
             tweetInput.value = '';
             document.getElementById('charCount').textContent = '280';
@@ -130,6 +137,7 @@ function loadTweets() {
                     <img src="${tweet.userPhoto}" alt="Foto de perfil">
                     <div class="tweet-name-container">
                         <span class="tweet-name">${tweet.userName}</span>
+                        ${tweet.isVerified ? '<i class="fas fa-badge-check verified-badge"></i>' : ''}
                     </div>
                     <span class="tweet-time">${time}</span>
                 </div>
@@ -179,18 +187,30 @@ document.getElementById('tweetInput').addEventListener('input', function() {
     document.getElementById('charCount').textContent = remaining;
 });
 
-// Inicializar
-loadTweets(); 
+// Configuração inicial
+document.addEventListener('DOMContentLoaded', function() {
+    // Configurar usuários verificados
+    const verifiedUsers = {
+        'BeqiDev': true,
+        'ModeradorTop': true,
+        'VipUser': true
+        // Adicione mais usuários verificados aqui
+    };
 
-// Remova todas as partes relacionadas à verificação e senha
-function updateProfile() {
-    const nameInput = document.getElementById('userNameInput');
-    const username = nameInput.value.trim();
+    database.ref('verifiedUsers').set(verifiedUsers)
+        .then(() => {
+            console.log('Usuários verificados configurados com sucesso!');
+        })
+        .catch(error => {
+            console.error('Erro ao configurar usuários verificados:', error);
+        });
 
-    if (!username) {
-        alert('Por favor, digite seu nome');
-        return;
-    }
-
-    alert('Perfil atualizado com sucesso!');
-} 
+    // Inicializar outras funções
+    loadTweets();
+    
+    // Contador de caracteres
+    document.getElementById('tweetInput').addEventListener('input', function() {
+        const remaining = 280 - this.value.length;
+        document.getElementById('charCount').textContent = remaining;
+    });
+}); 

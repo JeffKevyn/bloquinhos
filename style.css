@@ -261,7 +261,7 @@ body {
 .tweet-name-container {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
 }
 
 .profile-name-container {
@@ -438,4 +438,14 @@ body {
 
 .like-button.liked i {
     animation: likeAnimation 0.3s ease;
+}
+
+.verified-badge {
+    color: #FFD700; /* Cor dourada */
+    font-size: 16px;
+    margin-left: 4px;
+}
+
+.verified-badge:hover {
+    filter: brightness(1.2);
 }
