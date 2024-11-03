@@ -458,6 +458,7 @@ body {
     border-radius: 4px;
     cursor: pointer;
     margin-left: 10px;
+    font-size: 12px;
 }
 
 .verify-button.verified {
@@ -466,4 +467,15 @@ body {
 
 .verify-button:hover {
     opacity: 0.8;
+}
+
+.verified-badge {
+    color: #1DA1F2;
+    margin-left: 4px;
+    font-size: 14px;
+}
+
+.tweet-name-container {
+    display: flex;
+    align-items: center;
 }

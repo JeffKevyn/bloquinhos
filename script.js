@@ -13,8 +13,54 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
-// ID do usuário
-const userId = 'user_' + Math.random().toString(36).substr(2, 9);
+// Função para gerar um novo ID
+function generateUserId() {
+    return 'user_' + Math.random().toString(36).substr(2, 9);
+}
+
+// Função para obter ou criar um ID persistente
+function getPersistentUserId() {
+    // Tenta obter o ID existente do localStorage
+    let storedId = localStorage.getItem('userId');
+    
+    // Se não existir, cria um novo ID e salva
+    if (!storedId) {
+        storedId = generateUserId();
+        localStorage.setItem('userId', storedId);
+    }
+    
+    return storedId;
+}
+
+// Usar o ID persistente em vez de gerar um novo a cada vez
+const userId = getPersistentUserId();
+
+// Adicione isso logo após a definição do userId
+console.log('Seu ID de usuário é:', userId);
+
+// Adicione um botão na interface para mostrar o ID
+document.addEventListener('DOMContentLoaded', function() {
+    const header = document.createElement('div');
+    header.style.padding = '10px';
+    header.style.backgroundColor = '#1DA1F2';
+    header.style.color = 'white';
+    header.style.marginBottom = '20px';
+    header.innerHTML = `
+        <p>Seu ID de usuário: ${userId}</p>
+        <button onclick="copyUserId()" style="padding: 5px 10px;">Copiar ID</button>
+    `;
+    
+    // Inserir antes do container de tweets
+    const tweetsContainer = document.getElementById('tweetsContainer');
+    tweetsContainer.parentNode.insertBefore(header, tweetsContainer);
+});
+
+// Função para copiar o ID
+function copyUserId() {
+    navigator.clipboard.writeText(userId).then(() => {
+        alert('ID copiado para a área de transferência!');
+    });
+}
 
 // Variável global para armazenar a imagem do tweet
 let tweetImage = null;
@@ -132,41 +178,68 @@ function loadTweets() {
             
             const time = new Date(tweet.timestamp).toLocaleString();
             
-            tweetElement.innerHTML = `
-                <div class="tweet-header">
-                    <img src="${tweet.userPhoto}" alt="Foto de perfil">
-                    <div class="tweet-name-container">
-                        <span class="tweet-name">${tweet.userName}</span>
-                        ${tweet.isVerified ? '<i class="fas fa-badge-check verified-badge"></i>' : ''}
-                    </div>
-                    <span class="tweet-time">${time}</span>
-                </div>
-                <div class="tweet-content">${tweet.text}</div>
-                ${tweet.image ? `<img src="${tweet.image}" alt="Tweet image" class="tweet-image">` : ''}
-                <div class="tweet-actions">
-                    <button onclick="toggleLike('${tweetId}')" class="like-button ${isLiked ? 'liked' : ''}">
-                        <i class="fa-heart ${isLiked ? 'fas' : 'far'}"></i>
-                        <span class="like-count">${tweet.likes || 0}</span>
-                    </button>
-                </div>
-            `;
-            
-            tweetsContainer.insertBefore(tweetElement, tweetsContainer.firstChild);
+            // Verifica se o usuário está verificado
+            database.ref('verifiedUsers/' + tweet.userId).once('value')
+                .then((snapshot) => {
+                    const isVerified = snapshot.exists();
+                    
+                    tweetElement.innerHTML = `
+                        <div class="tweet-header">
+                            <img src="${tweet.userPhoto}" alt="Foto de perfil">
+                            <div class="tweet-name-container">
+                                <span class="tweet-name">${tweet.userName}</span>
+                                ${isVerified ? '<i class="fas fa-badge-check verified-badge"></i>' : ''}
+                            </div>
+                            <span class="tweet-time">${time}</span>
+                            ${ADMIN_IDS.includes(userId) ? `
+                                <button onclick="toggleVerification('${tweet.userId}')" class="verify-button">
+                                    ${isVerified ? 'Remover Verificação' : 'Verificar Usuário'}
+                                </button>
+                            ` : ''}
+                        </div>
+                        <div class="tweet-content">${tweet.text}</div>
+                        ${tweet.image ? `<img src="${tweet.image}" alt="Tweet image" class="tweet-image">` : ''}
+                        <div class="tweet-actions">
+                            <button onclick="toggleLike('${tweetId}')" class="like-button ${isLiked ? 'liked' : ''}">
+                                <i class="fa-heart ${isLiked ? 'fas' : 'far'}"></i>
+                                <span class="like-count">${tweet.likes || 0}</span>
+                            </button>
+                        </div>
+                    `;
+                    
+                    tweetsContainer.insertBefore(tweetElement, tweetsContainer.firstChild);
+                });
         });
+}
 
-    // Atualizar contagem de likes em tempo real
-    database.ref('tweets').on('child_changed', (snapshot) => {
-        const tweet = snapshot.val();
-        const tweetId = snapshot.key;
-        const isLiked = tweet.likedBy && tweet.likedBy[userId];
-        
-        const likeButton = document.querySelector(`[onclick="toggleLike('${tweetId}')"]`);
-        if (likeButton) {
-            likeButton.className = `like-button ${isLiked ? 'liked' : ''}`;
-            likeButton.querySelector('i').className = `fa-heart ${isLiked ? 'fas' : 'far'}`;
-            likeButton.querySelector('.like-count').textContent = tweet.likes || 0;
-        }
-    });
+// Função para alternar verificação
+function toggleVerification(targetUserId) {
+    if (!ADMIN_IDS.includes(userId)) {
+        alert('Você não tem permissão para verificar usuários');
+        return;
+    }
+
+    const verifiedRef = database.ref('verifiedUsers/' + targetUserId);
+    
+    verifiedRef.once('value')
+        .then((snapshot) => {
+            const isVerified = snapshot.exists();
+            
+            if (isVerified) {
+                // Remove a verificação
+                return verifiedRef.remove();
+            } else {
+                // Adiciona a verificação
+                return verifiedRef.set(true);
+            }
+        })
+        .then(() => {
+            loadTweets(); // Recarrega os tweets para atualizar a visualização
+        })
+        .catch((error) => {
+            console.error('Erro ao alternar verificação:', error);
+            alert('Erro ao alternar verificação');
+        });
 }
 
 // Upload de imagem
@@ -249,67 +322,130 @@ function removeVerifiedUser(userId) {
         });
 }
 
-// Função para renderizar um tweet
-function renderTweet(tweet, container) {
-    checkVerified(tweet.userId).then(isVerified => {
-        const tweetElement = document.createElement('div');
-        tweetElement.className = `tweet ${tweet.isPinned ? 'pinned' : ''}`;
-        
-        const time = new Date(tweet.timestamp).toLocaleString();
-        
-        tweetElement.innerHTML = `
-            ${tweet.isPinned ? '<div class="pinned-badge"><i class="fas fa-thumbtack"></i> Tweet Fixado</div>' : ''}
-            <div class="tweet-header">
-                <img src="${tweet.userPhoto}" alt="Foto de perfil">
-                <div class="tweet-name-container">
-                    <span class="tweet-name">${tweet.userName}</span>
-                    ${isVerified ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
-                </div>
-                <span class="tweet-time">${time}</span>
-                ${ADMIN_IDS.includes(userId) ? `
-                    <button onclick="${isVerified ? 'removeVerifiedUser' : 'addVerifiedUser'}('${tweet.userId}')" 
-                            class="verify-button ${isVerified ? 'verified' : ''}">
-                        ${isVerified ? 'Remover Verificação' : 'Verificar Usuário'}
-                    </button>
-                ` : ''}
-            </div>
-            <div class="tweet-content">${tweet.text}</div>
-            ${tweet.image ? `<img src="${tweet.image}" alt="Tweet image" class="tweet-image">` : ''}
-            <div class="tweet-actions">
-                <button onclick="toggleLike('${tweet.id}')" class="like-button ${tweet.likedBy && tweet.likedBy[userId] ? 'liked' : ''}">
-                    <i class="fa-heart ${tweet.likedBy && tweet.likedBy[userId] ? 'fas' : 'far'}"></i>
-                    <span class="like-count">${tweet.likes || 0}</span>
-                </button>
-            </div>
-        `;
-        
-        container.appendChild(tweetElement);
-    });
-}
+// Sistema de Verificação por ID
+const ADMIN_IDS = ['user_dkc0ec011']; // Substitua pelo seu ID real
 
-// Lista de IDs de administradores que podem verificar usuários (coloque no início do arquivo)
-const ADMIN_IDS = ['user_0mgztq1g9']; // Substitua 'seu_id_aqui' pelo seu userId real do Firebase
-
-// Função para verificar se o usuário atual é um administrador
-function isAdmin() {
-    return ADMIN_IDS.includes(userId);
-}
-
-// Função para gerenciar verificação de usuários (apenas para admins)
-function manageVerification(targetUserId, shouldVerify) {
-    if (!isAdmin()) {
-        console.error('Acesso negado: apenas administradores podem gerenciar verificações');
+// Função para verificar usuário por ID
+function verifyUser(targetUserId) {
+    if (!ADMIN_IDS.includes(userId)) {
+        alert('Você não é admin!');
         return;
     }
-
-    if (shouldVerify) {
-        addVerifiedUser(targetUserId);
-    } else {
-        removeVerifiedUser(targetUserId);
-    }
+    
+    database.ref('verifiedUsers/' + targetUserId).set(true)
+        .then(() => {
+            alert('Usuário verificado com sucesso!');
+            loadTweets();
+        })
+        .catch(error => {
+            alert('Erro ao verificar usuário: ' + error.message);
+        });
 }
 
-// Exemplo de uso:
-// manageVerification('id_do_usuario', true); // Para verificar um usuário
-// manageVerification('id_do_usuario', false); // Para remover a verificação
+// Função para remover verificação
+function unverifyUser(targetUserId) {
+    if (!ADMIN_IDS.includes(userId)) {
+        alert('Você não é admin!');
+        return;
+    }
+    
+    database.ref('verifiedUsers/' + targetUserId).remove()
+        .then(() => {
+            alert('Verificação removida com sucesso!');
+            loadTweets();
+        })
+        .catch(error => {
+            alert('Erro ao remover verificação: ' + error.message);
+        });
+}
+
+// Função para renderizar tweet
+function renderTweet(tweet, container) {
+    const tweetElement = document.createElement('div');
+    tweetElement.className = 'tweet';
+    
+    // Verifica se o usuário está verificado pelo ID
+    database.ref('verifiedUsers/' + tweet.userId).once('value')
+        .then(snapshot => {
+            const isVerified = snapshot.exists();
+            
+            tweetElement.innerHTML = `
+                <div class="tweet-header">
+                    <img src="${tweet.userPhoto}" alt="Foto de perfil">
+                    <div class="tweet-name-container">
+                        <span class="tweet-name">${tweet.userName}</span>
+                        ${isVerified ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
+                    </div>
+                    ${ADMIN_IDS.includes(userId) ? `
+                        <button onclick="${isVerified ? 'unverifyUser' : 'verifyUser'}('${tweet.userId}')" 
+                                class="verify-button">
+                            ${isVerified ? 'Remover Verificação' : 'Verificar Usuário'}
+                        </button>
+                    ` : ''}
+                </div>
+                <div class="tweet-content">${tweet.text}</div>
+                <div class="tweet-actions">
+                    <button onclick="toggleLike('${tweet.id}')" class="like-button">
+                        <i class="fas fa-heart"></i>
+                        <span>${tweet.likes || 0}</span>
+                    </button>
+                </div>
+            `;
+            
+            container.appendChild(tweetElement);
+        });
+}
+
+// Adicione estes estilos CSS
+const styles = `
+    .verify-button {
+        background-color: #1DA1F2;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-left: 10px;
+        font-size: 12px;
+    }
+
+    .verified-badge {
+        color: #1DA1F2;
+        margin-left: 4px;
+        font-size: 14px;
+    }
+
+    .tweet-name-container {
+        display: flex;
+        align-items: center;
+    }
+`;
+
+// Adiciona os estilos à página
+const styleSheet = document.createElement("style");
+styleSheet.innerText = styles;
+document.head.appendChild(styleSheet);
+
+// Função para verificar status (debug)
+function checkStatus() {
+    console.log('=== STATUS DO SISTEMA ===');
+    console.log('Seu ID:', userId);
+    console.log('Lista de Admins:', ADMIN_IDS);
+    console.log('É admin?', ADMIN_IDS.includes(userId));
+    
+    // Verificar usuários verificados
+    database.ref('verifiedUsers').once('value')
+        .then(snapshot => {
+            console.log('Usuários Verificados (por ID):', snapshot.val());
+        });
+}
+
+// Adicione um botão de debug na interface
+document.addEventListener('DOMContentLoaded', function() {
+    const debugButton = document.createElement('button');
+    debugButton.innerHTML = 'Verificar Status';
+    debugButton.onclick = checkStatus;
+    debugButton.style.margin = '10px';
+    document.body.insertBefore(debugButton, document.body.firstChild);
+});
   
