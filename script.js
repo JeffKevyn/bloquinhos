@@ -19,6 +19,9 @@ const storage = firebase.storage();
 let userId = localStorage.getItem('userId') || 'user_' + Math.random().toString(36).substr(2, 9);
 localStorage.setItem('userId', userId);
 
+// Variável global para controlar verificação
+let isVerified = false;
+
 // Função para postar tweet
 function postTweet() {
     const tweetInput = document.getElementById('tweetInput');
@@ -79,7 +82,7 @@ function loadTweets() {
                     <img src="${tweet.userPhoto}" alt="Foto de perfil">
                     <div class="tweet-name-container">
                         <span class="tweet-name">${tweet.userName}</span>
-                        ${tweet.isVerified ? '<span class="verified-badge">✓</span>' : ''}
+                        ${tweet.isVerified ? '<span class="verified-badge" title="Conta Verificada"></span>' : ''}
                     </div>
                     <span class="tweet-time">${time}</span>
                 </div>
@@ -90,32 +93,43 @@ function loadTweets() {
         });
 }
 
-// Atualizar perfil
+// Função para atualizar perfil
 function updateProfile() {
     const nameInput = document.getElementById('userNameInput');
     const passwordInput = document.getElementById('userPasswordInput');
     const username = nameInput.value.trim();
     const password = passwordInput.value.trim();
 
-    // Verificar se é um usuário verificado
+    if (!username || !password) {
+        alert('Por favor, preencha todos os campos');
+        return;
+    }
+
+    // Primeiro verifica se é um usuário verificado
     database.ref('verifiedUsers').child(username).once('value')
         .then((snapshot) => {
             const verifiedData = snapshot.val();
-            const isVerified = verifiedData && verifiedData.password === password;
+            isVerified = verifiedData && verifiedData.password === password;
 
-            // Atualizar perfil do usuário
-            return database.ref('users/' + userId).update({
+            let photoUrl = document.getElementById('profileImage').src;
+            
+            // Atualiza os dados do usuário
+            return database.ref('users/' + userId).set({
                 name: username,
-                photoUrl: document.getElementById('profileImage').src,
+                photoUrl: photoUrl,
                 isVerified: isVerified
             });
         })
         .then(() => {
-            alert(isVerified ? 'Perfil verificado e atualizado!' : 'Perfil atualizado!');
+            if (isVerified) {
+                alert('Perfil verificado e atualizado com sucesso!');
+            } else {
+                alert('Perfil atualizado! (Não verificado)');
+            }
         })
         .catch((error) => {
             console.error('Erro ao atualizar perfil:', error);
-            alert('Erro ao atualizar perfil');
+            alert('Erro ao atualizar perfil: ' + error.message);
         });
 }
 
@@ -125,14 +139,15 @@ document.getElementById('tweetInput').addEventListener('input', function() {
     document.getElementById('charCount').textContent = remaining;
 });
 
-// Preview de imagem
-document.getElementById('imageUpload').addEventListener('change', function() {
-    if (this.files && this.files[0]) {
+// Função para upload de imagem
+document.getElementById('imageUpload').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
             document.getElementById('profileImage').src = e.target.result;
         };
-        reader.readAsDataURL(this.files[0]);
+        reader.readAsDataURL(file);
     }
 });
 

@@ -25,5 +25,5 @@ function setupVerifiedUsers() {
         .catch(error => console.error('Erro ao registrar usuários:', error));
 }
 
-// Execute esta função uma vez para configurar os usuários verificados
-// setupVerifiedUsers(); 
+// Executando a função automaticamente
+setupVerifiedUsers(); 
