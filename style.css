@@ -1,126 +1,80 @@
 body {
+    margin: 0;
+    font-family: Arial, sans-serif;
     background-color: #15202b;
     color: white;
-    font-family: Arial, sans-serif;
 }
 
-.container {
-    max-width: 600px;
-    margin: 20px auto;
+.app-container {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    min-height: 100vh;
 }
 
-.auth-container {
+.profile-sidebar {
     background-color: #192734;
     padding: 20px;
-    border-radius: 15px;
-    margin-top: 20px;
-}
-
-.auth-container input {
-    margin: 10px 0;
-    background-color: #253341;
-    border: none;
-    color: white;
-}
-
-.toggle-link {
-    color: #1da1f2;
-    cursor: pointer;
+    border-right: 1px solid #38444d;
 }
 
 .profile-header {
-    background-color: #192734;
-    padding: 15px;
-    border-radius: 15px;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.profile-pic {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-.tweet-input-area {
-    background-color: #192734;
-    padding: 15px;
-    border-radius: 15px;
-    margin-bottom: 20px;
-}
-
-#tweetInput {
-    background-color: #253341;
-    border: none;
-    color: white;
-    margin-bottom: 10px;
-    resize: none;
-}
-
-.tweets-container {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    padding: 20px;
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.tweet {
-    background-color: #192734;
-    border-radius: 15px;
-    padding: 15px;
-    animation: fadeIn 0.3s ease-in;
-    border: 1px solid #38444d;
-}
-
-.tweet:hover {
-    background-color: #1e2d3d;
-}
-
-.tweet-user-info {
-    display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
+    gap: 15px;
+    margin-bottom: 20px;
 }
 
-.tweet-user-photo {
-    width: 48px;
-    height: 48px;
+#profileImage {
+    width: 150px;
+    height: 150px;
     border-radius: 50%;
     object-fit: cover;
+    border: 3px solid #1da1f2;
 }
 
-.tweet-username {
-    font-weight: bold;
-    color: #fff;
+.profile-info {
+    padding: 15px 0;
 }
 
-.tweet-content {
-    margin-left: 58px;
+.main-content {
+    padding: 20px;
+    max-width: 800px;
 }
 
-.tweet-text {
-    margin-bottom: 8px;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-}
-
-.tweet-time {
-    color: #8899a6;
-    font-size: 0.9em;
-}
-
-.tweet-input-area {
+.tweet-box {
     background-color: #192734;
-    border-radius: 15px;
     padding: 15px;
+    border-radius: 15px;
     margin-bottom: 20px;
     border: 1px solid #38444d;
+}
+
+.tweet-textarea {
+    width: 100%;
+    min-height: 100px;
+    background-color: transparent;
+    border: none;
+    color: white;
+    font-size: 1.1em;
+    resize: none;
+    padding: 10px;
+}
+
+.tweet-textarea:focus {
+    outline: none;
+}
+
+.tweet-button {
+    background-color: #1da1f2;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+}
+
+.tweet-button:hover {
+    background-color: #1991db;
 }
 
 #tweetInput {
@@ -129,9 +83,9 @@ body {
     background-color: transparent;
     border: none;
     color: white;
-    resize: none;
-    margin-bottom: 10px;
     font-size: 1.1em;
+    resize: none;
+    padding: 10px;
 }
 
 #tweetInput:focus {
@@ -142,153 +96,51 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.main-container {
-    display: grid;
-    grid-template-columns: 300px 1fr;
-    gap: 20px;
-    min-height: 100vh;
-    padding: 20px;
-}
-
-.sidebar {
-    background-color: #192734;
-    border-radius: 15px;
-    padding: 20px;
-    position: sticky;
-    top: 20px;
-    height: fit-content;
-}
-
-.profile-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #38444d;
-}
-
-.profile-info {
-    margin-top: 10px;
-    text-align: center;
-    width: 100%;
-}
-
-.user-name {
-    display: block;
-    font-size: 1.2em;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-
-.online-users {
-    margin-top: 20px;
-}
-
-.online-users h5 {
-    color: #1da1f2;
-    margin-bottom: 15px;
-}
-
-.online-user {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px;
-    border-radius: 10px;
-    transition: background-color 0.2s;
-}
-
-.online-user:hover {
-    background-color: #253341;
-}
-
-.online-user img {
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-}
-
-.main-content {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    max-height: calc(100vh - 40px);
-    overflow-y: auto;
-}
-
-.tweet-input-area {
-    background-color: #192734;
-    padding: 15px;
-    border-radius: 15px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-}
-
-.tweet-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #38444d;
 }
 
 #charCount {
     color: #8899a6;
 }
 
-.tweets-container {
-    display: flex;
-    flex-direction: column-reverse;
-    gap: 10px;
-}
-
 .tweet {
     background-color: #192734;
     padding: 15px;
     border-radius: 15px;
-    display: flex;
-    gap: 15px;
+    margin-bottom: 15px;
     animation: fadeIn 0.3s ease-in;
 }
 
-.tweet:hover {
-    background-color: #1e2c3a;
+.tweet-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.tweet-header img {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.tweet-name {
+    font-weight: bold;
+}
+
+.tweet-time {
+    color: #8899a6;
+    font-size: 0.9em;
+}
+
+.tweet-content {
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
-}
-
-/* Estilo para scrollbar personalizada */
-::-webkit-scrollbar {
-    width: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: #15202b;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #38444d;
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: #465a6d;
-}
-
-#chatArea {
-    display: none; /* Inicialmente oculto */
-}
-
-#chatArea.visible {
-    display: block !important; /* Força exibição quando necessário */
 } 
