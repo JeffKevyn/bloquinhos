@@ -187,10 +187,14 @@ body {
     }
 }
 
-/* Adicione ao seu CSS existente */
+/* Estilos para o emblema de verificação */
 .verified-badge {
     color: #1DA1F2;
+    font-size: 1.2em;
     margin-left: 4px;
+    display: inline-flex;
+    align-items: center;
+    animation: verifiedPop 0.3s ease-out;
 }
 
 .tweet-name-container {
@@ -201,11 +205,13 @@ body {
 
 /* Animação do emblema */
 @keyframes verifiedPop {
-    0% { transform: scale(0); }
-    70% { transform: scale(1.2); }
-    100% { transform: scale(1); }
+    0% { transform: scale(0); opacity: 0; }
+    70% { transform: scale(1.2); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
 }
 
-.verified-badge {
-    animation: verifiedPop 0.3s ease-out;
+/* Estilo hover para o nome verificado */
+.tweet-name-container:hover .verified-badge {
+    transform: scale(1.1);
+    transition: transform 0.2s ease;
 } 

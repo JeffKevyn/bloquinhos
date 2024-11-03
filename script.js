@@ -42,8 +42,11 @@ async function updateProfile() {
     const passwordInput = document.getElementById('userPasswordInput');
     const imageFile = document.getElementById('imageUpload').files[0];
     
-    // Verifica a senha
-    isVerified = verifiedPasswords[passwordInput.value] || false;
+    // Verifica se o nome e senha correspondem a um usuário verificado
+    const username = nameInput.value.trim();
+    const password = passwordInput.value.trim();
+    
+    isVerified = verifiedUsers[username] && verifiedUsers[username].password === password;
     
     let photoUrl = document.getElementById('profileImage').src;
     
@@ -53,10 +56,10 @@ async function updateProfile() {
             return imageRef.getDownloadURL();
         }).then(url => {
             photoUrl = url;
-            saveProfileData(nameInput.value, photoUrl);
+            saveProfileData(username, photoUrl);
         });
     } else {
-        saveProfileData(nameInput.value, photoUrl);
+        saveProfileData(username, photoUrl);
     }
 }
 
@@ -67,7 +70,11 @@ function saveProfileData(name, photoUrl) {
         photoUrl: photoUrl,
         isVerified: isVerified
     }).then(() => {
-        alert('Perfil atualizado!');
+        if (isVerified) {
+            alert('Perfil verificado e atualizado com sucesso!');
+        } else {
+            alert('Perfil atualizado!');
+        }
     }).catch(error => {
         console.error('Erro ao atualizar perfil:', error);
         alert('Erro ao atualizar perfil');

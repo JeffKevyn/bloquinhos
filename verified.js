@@ -1,6 +1,15 @@
-const verifiedPasswords = {
-    'jeffin': true,
-    'mod456': true,
-    'vip789': true
-    // Adicione mais senhas aqui
+const verifiedUsers = {
+    'BeqiDev': {
+        password: 'admin123',
+        badge: '✓'
+    },
+    'ModeradorTop': {
+        password: 'mod456',
+        badge: '✓'
+    },
+    'VipUser': {
+        password: 'vip789',
+        badge: '✓'
+    }
+    // Adicione mais usuários verificados aqui
 }; 
