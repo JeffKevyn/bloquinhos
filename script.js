@@ -70,8 +70,6 @@ function loadTweets() {
         .orderByChild('timestamp')
         .on('child_added', (snapshot) => {
             const tweet = snapshot.val();
-            console.log('Novo tweet recebido:', tweet); // Debug
-
             const tweetElement = document.createElement('div');
             tweetElement.className = 'tweet';
             
@@ -105,11 +103,16 @@ function updateProfile() {
         return;
     }
 
+    console.log('Tentando verificar usuário:', username); // Debug
+
     // Primeiro verifica se é um usuário verificado
-    database.ref('verifiedUsers').child(username).once('value')
+    database.ref('verifiedUsers/' + username).once('value')
         .then((snapshot) => {
             const verifiedData = snapshot.val();
+            console.log('Dados verificados:', verifiedData); // Debug
+            
             isVerified = verifiedData && verifiedData.password === password;
+            console.log('É verificado?', isVerified); // Debug
 
             let photoUrl = document.getElementById('profileImage').src;
             
@@ -122,8 +125,10 @@ function updateProfile() {
         })
         .then(() => {
             if (isVerified) {
+                document.getElementById('profileVerifiedBadge').style.display = 'inline-flex';
                 alert('Perfil verificado e atualizado com sucesso!');
             } else {
+                document.getElementById('profileVerifiedBadge').style.display = 'none';
                 alert('Perfil atualizado! (Não verificado)');
             }
         })

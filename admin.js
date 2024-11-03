@@ -1,29 +1,30 @@
-// Este arquivo deve ser executado uma vez para configurar os usuários verificados
+// Configuração dos usuários verificados
 function setupVerifiedUsers() {
     const verifiedUsers = {
         'BeqiDev': {
             password: 'admin123',
-            badge: '✓',
-            role: 'admin'
+            badge: '✓'
         },
         'ModeradorTop': {
             password: 'mod456',
-            badge: '✓',
-            role: 'moderator'
+            badge: '✓'
         },
         'VipUser': {
             password: 'vip789',
-            badge: '✓',
-            role: 'vip'
+            badge: '✓'
         }
     };
 
-    // Salvar no Firebase
-    const database = firebase.database();
+    console.log('Configurando usuários verificados...'); // Debug
+    
     database.ref('verifiedUsers').set(verifiedUsers)
-        .then(() => console.log('Usuários verificados registrados com sucesso!'))
-        .catch(error => console.error('Erro ao registrar usuários:', error));
+        .then(() => {
+            console.log('Usuários verificados registrados com sucesso!');
+        })
+        .catch(error => {
+            console.error('Erro ao registrar usuários:', error);
+        });
 }
 
-// Executando a função automaticamente
+// Executar a função
 setupVerifiedUsers(); 

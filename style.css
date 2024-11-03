@@ -193,18 +193,16 @@ body {
     align-items: center;
     justify-content: center;
     margin-left: 4px;
-    color: #FFD700; /* Dourado */
-    font-size: 16px;
-    position: relative;
     width: 16px;
     height: 16px;
+    position: relative;
 }
 
 .verified-badge::before {
     content: "✓";
     position: absolute;
-    background-color: #FFD700; /* Dourado */
-    color: #192734; /* Cor de fundo escura para contraste */
+    background-color: #FFD700;
+    color: #192734;
     border-radius: 50%;
     font-size: 11px;
     font-weight: bold;
@@ -217,7 +215,19 @@ body {
     animation: verifiedPop 0.3s ease-out;
 }
 
-/* Animação do emblema */
+.tweet-name-container {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.profile-name-container {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 10px;
+}
+
 @keyframes verifiedPop {
     0% { transform: scale(0); opacity: 0; }
     70% { transform: scale(1.2); opacity: 0.7; }

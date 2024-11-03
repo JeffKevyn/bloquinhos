@@ -23,7 +23,10 @@
                 </button>
             </div>
             <div class="profile-info">
-                <input type="text" id="userNameInput" placeholder="Seu nome" class="form-control mb-2">
+                <div class="profile-name-container">
+                    <input type="text" id="userNameInput" placeholder="Seu nome" class="form-control mb-2">
+                    <span id="profileVerifiedBadge" class="verified-badge" style="display: none;"></span>
+                </div>
                 <input type="password" id="userPasswordInput" placeholder="Senha de verificação" class="form-control mb-2">
                 <button onclick="updateProfile()" class="btn btn-primary w-100">Salvar perfil</button>
             </div>
