@@ -323,7 +323,7 @@ function removeVerifiedUser(userId) {
 }
 
 // Sistema de Verificação por ID
-const ADMIN_IDS = ['user_dkc0ec011']; // Substitua pelo seu ID real
+const ADMIN_IDS = ['user_qaunowfad']; // Substitua pelo seu ID real
 
 // Função para verificar usuário por ID
 function verifyUser(targetUserId) {
