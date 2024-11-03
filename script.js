@@ -91,28 +91,39 @@ function loadTweets() {
         });
 }
 
-// Função para atualizar perfil
+// Função para atualizar perfil com mais logs de debug
 function updateProfile() {
     const nameInput = document.getElementById('userNameInput');
     const passwordInput = document.getElementById('userPasswordInput');
     const username = nameInput.value.trim();
     const password = passwordInput.value.trim();
 
+    console.log('Tentando verificar:', username, password); // Debug
+
     if (!username || !password) {
         alert('Por favor, preencha todos os campos');
         return;
     }
 
-    console.log('Tentando verificar usuário:', username); // Debug
-
-    // Primeiro verifica se é um usuário verificado
-    database.ref('verifiedUsers/' + username).once('value')
+    // Primeiro, vamos buscar e mostrar todos os usuários verificados (para debug)
+    database.ref('verifiedUsers').once('value')
+        .then(snapshot => {
+            console.log('Todos os usuários verificados:', snapshot.val());
+            return database.ref('verifiedUsers/' + username).once('value');
+        })
         .then((snapshot) => {
             const verifiedData = snapshot.val();
-            console.log('Dados verificados:', verifiedData); // Debug
-            
-            isVerified = verifiedData && verifiedData.password === password;
-            console.log('É verificado?', isVerified); // Debug
+            console.log('Dados do usuário encontrado:', verifiedData);
+
+            if (!verifiedData) {
+                console.log('Usuário não encontrado na lista de verificados');
+                isVerified = false;
+            } else {
+                console.log('Senha fornecida:', password);
+                console.log('Senha esperada:', verifiedData.password);
+                isVerified = verifiedData.password === password;
+                console.log('É verificado?', isVerified);
+            }
 
             let photoUrl = document.getElementById('profileImage').src;
             
