@@ -91,62 +91,52 @@ function loadTweets() {
         });
 }
 
-// Função para atualizar perfil com mais logs de debug
-function updateProfile() {
+// Função para atualizar perfil
+async function updateProfile() {
     const nameInput = document.getElementById('userNameInput');
     const passwordInput = document.getElementById('userPasswordInput');
     const username = nameInput.value.trim();
     const password = passwordInput.value.trim();
 
-    console.log('Tentando verificar:', username, password); // Debug
+    console.log('Tentando verificar usuário:', username);
+    console.log('Com senha:', password);
 
-    if (!username || !password) {
-        alert('Por favor, preencha todos os campos');
-        return;
-    }
+    try {
+        // Buscar usuário verificado
+        const verifiedSnapshot = await database.ref('verifiedUsers').child(username).once('value');
+        const verifiedData = verifiedSnapshot.val();
+        
+        console.log('Dados encontrados:', verifiedData);
 
-    // Primeiro, vamos buscar e mostrar todos os usuários verificados (para debug)
-    database.ref('verifiedUsers').once('value')
-        .then(snapshot => {
-            console.log('Todos os usuários verificados:', snapshot.val());
-            return database.ref('verifiedUsers/' + username).once('value');
-        })
-        .then((snapshot) => {
-            const verifiedData = snapshot.val();
-            console.log('Dados do usuário encontrado:', verifiedData);
+        // Verificar se o usuário existe e a senha está correta
+        isVerified = verifiedData && verifiedData.password === password;
+        
+        console.log('Senha do banco:', verifiedData?.password);
+        console.log('Senha fornecida:', password);
+        console.log('É verificado?', isVerified);
 
-            if (!verifiedData) {
-                console.log('Usuário não encontrado na lista de verificados');
-                isVerified = false;
-            } else {
-                console.log('Senha fornecida:', password);
-                console.log('Senha esperada:', verifiedData.password);
-                isVerified = verifiedData.password === password;
-                console.log('É verificado?', isVerified);
-            }
-
-            let photoUrl = document.getElementById('profileImage').src;
-            
-            // Atualiza os dados do usuário
-            return database.ref('users/' + userId).set({
-                name: username,
-                photoUrl: photoUrl,
-                isVerified: isVerified
-            });
-        })
-        .then(() => {
-            if (isVerified) {
-                document.getElementById('profileVerifiedBadge').style.display = 'inline-flex';
-                alert('Perfil verificado e atualizado com sucesso!');
-            } else {
-                document.getElementById('profileVerifiedBadge').style.display = 'none';
-                alert('Perfil atualizado! (Não verificado)');
-            }
-        })
-        .catch((error) => {
-            console.error('Erro ao atualizar perfil:', error);
-            alert('Erro ao atualizar perfil: ' + error.message);
+        // Atualizar perfil
+        let photoUrl = document.getElementById('profileImage').src;
+        
+        await database.ref('users/' + userId).set({
+            name: username,
+            photoUrl: photoUrl,
+            isVerified: isVerified
         });
+
+        // Atualizar UI
+        if (isVerified) {
+            document.getElementById('profileVerifiedBadge').style.display = 'inline-flex';
+            alert('Perfil verificado e atualizado com sucesso!');
+        } else {
+            document.getElementById('profileVerifiedBadge').style.display = 'none';
+            alert('Perfil atualizado! (Não verificado)');
+        }
+
+    } catch (error) {
+        console.error('Erro:', error);
+        alert('Erro ao atualizar perfil: ' + error.message);
+    }
 }
 
 // Event Listeners
@@ -169,3 +159,14 @@ document.getElementById('imageUpload').addEventListener('change', function(e) {
 
 // Inicialização
 loadTweets();
+
+// Adicione esta função para debug
+function checkVerifiedUsers() {
+    database.ref('verifiedUsers').once('value')
+        .then(snapshot => {
+            console.log('Lista completa de usuários verificados:', snapshot.val());
+        });
+}
+
+// Chame esta função quando a página carregar
+checkVerifiedUsers();

@@ -20,6 +20,11 @@ function setupVerifiedUsers() {
     database.ref('verifiedUsers').set(verifiedUsers)
         .then(() => {
             console.log('Usuários verificados registrados com sucesso!');
+            // Vamos verificar se foram salvos
+            return database.ref('verifiedUsers').once('value');
+        })
+        .then(snapshot => {
+            console.log('Usuários registrados:', snapshot.val());
         })
         .catch(error => {
             console.error('Erro ao registrar usuários:', error);
