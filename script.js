@@ -15,7 +15,6 @@ const database = firebase.database();
 
 // ID do usuário
 const userId = 'user_' + Math.random().toString(36).substr(2, 9);
-let isVerified = false;
 
 // Função para postar tweet
 function postTweet() {
@@ -34,7 +33,6 @@ function postTweet() {
         userName: userName,
         userPhoto: photoUrl,
         text: tweetText,
-        isVerified: isVerified,
         timestamp: firebase.database.ServerValue.TIMESTAMP
     };
 
@@ -68,7 +66,6 @@ function loadTweets() {
                     <img src="${tweet.userPhoto}" alt="Foto de perfil">
                     <div class="tweet-name-container">
                         <span class="tweet-name">${tweet.userName}</span>
-                        ${tweet.isVerified ? '<span class="verified-badge" title="Conta Verificada"></span>' : ''}
                     </div>
                     <span class="tweet-time">${time}</span>
                 </div>
@@ -76,32 +73,6 @@ function loadTweets() {
             `;
             
             tweetsContainer.insertBefore(tweetElement, tweetsContainer.firstChild);
-        });
-}
-
-// Função para atualizar perfil
-function updateProfile() {
-    const nameInput = document.getElementById('userNameInput');
-    const passwordInput = document.getElementById('userPasswordInput');
-    const username = nameInput.value.trim();
-    const password = passwordInput.value.trim();
-
-    database.ref('verifiedUsers').child(username).once('value')
-        .then((snapshot) => {
-            const verifiedData = snapshot.val();
-            isVerified = verifiedData && verifiedData.password === password;
-
-            if (isVerified) {
-                document.getElementById('profileVerifiedBadge').style.display = 'inline-flex';
-                alert('Perfil verificado com sucesso!');
-            } else {
-                document.getElementById('profileVerifiedBadge').style.display = 'none';
-                alert('Perfil atualizado (não verificado)');
-            }
-        })
-        .catch(error => {
-            console.error('Erro:', error);
-            alert('Erro ao verificar perfil');
         });
 }
 
@@ -125,3 +96,16 @@ document.getElementById('tweetInput').addEventListener('input', function() {
 
 // Inicializar
 loadTweets(); 
+
+// Remova todas as partes relacionadas à verificação e senha
+function updateProfile() {
+    const nameInput = document.getElementById('userNameInput');
+    const username = nameInput.value.trim();
+
+    if (!username) {
+        alert('Por favor, digite seu nome');
+        return;
+    }
+
+    alert('Perfil atualizado com sucesso!');
+} 
