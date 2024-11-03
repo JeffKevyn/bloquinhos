@@ -17,7 +17,7 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: Arial;
     background-color: var(--background);
     color: var(--text);
     min-height: 100vh;
@@ -93,7 +93,7 @@ body {
     resize: none;
     padding: 15px;
     transition: border-color 0.3s ease;
-    font-family: "Comic Sans MS", "Comic Sans", cursive;
+    font-family: Arial;
 }
 
 .tweet-textarea:focus {
@@ -111,7 +111,7 @@ body {
 #charCount {
     color: var(--text-secondary);
     opacity: 0.7;
-    font-family: "Comic Sans MS", "Comic Sans", cursive;
+    font-family: Arial;
 }
 
 .tweets-container {
@@ -150,13 +150,13 @@ body {
 .tweet-name {
     color: var(--text);
     font-weight: bold;
-    font-family: "Comic Sans MS", "Comic Sans", cursive;
+    font-family: Arial;
 }
 
 .tweet-time {
     color: var(--text-secondary);
     opacity: 0.7;
-    font-family: "Comic Sans MS", "Comic Sans", cursive;
+    font-family: Arial;
 }
 
 .tweet-content {
@@ -164,7 +164,7 @@ body {
     line-height: 1.5;
     white-space: pre-wrap;
     word-wrap: break-word;
-    font-family: "Comic Sans MS", "Comic Sans", cursive;
+    font-family: Arial;
 }
 
 /* Botões */
@@ -176,7 +176,7 @@ body {
     padding: 10px 20px;
     border-radius: 20px;
     transition: all 0.3s ease;
-    font-family: "Comic Sans MS", "Comic Sans", cursive;
+    font-family: Arial;
 }
 
 .btn-primary:hover {
@@ -297,7 +297,7 @@ body {
     border-radius: 10px;
     padding: 10px 15px;
     transition: border-color 0.3s ease;
-    font-family: "Comic Sans MS", "Comic Sans", cursive;
+    font-family: Arial;
 }
 
 .form-control:focus {
@@ -409,7 +409,7 @@ body {
     gap: 5px;
     padding: 5px;
     transition: all 0.3s ease;
-    font-family: "Comic Sans MS", "Comic Sans", cursive;
+    font-family: Arial;
 }
 
 .like-button:hover {
