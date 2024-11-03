@@ -22,6 +22,9 @@ if (!userId) {
     localStorage.setItem('userId', userId);
 }
 
+// Adicione no início do arquivo, após a configuração do Firebase
+let isVerified = false;
+
 // Carregar perfil do usuário
 function loadUserProfile() {
     database.ref('users/' + userId).once('value').then((snapshot) => {
@@ -36,22 +39,39 @@ function loadUserProfile() {
 // Atualizar perfil
 async function updateProfile() {
     const nameInput = document.getElementById('userNameInput');
+    const passwordInput = document.getElementById('userPasswordInput');
     const imageFile = document.getElementById('imageUpload').files[0];
+    
+    // Verifica a senha
+    isVerified = verifiedPasswords[passwordInput.value] || false;
     
     let photoUrl = document.getElementById('profileImage').src;
     
     if (imageFile) {
         const imageRef = storage.ref('profile-images/' + userId);
-        await imageRef.put(imageFile);
-        photoUrl = await imageRef.getDownloadURL();
+        imageRef.put(imageFile).then(() => {
+            return imageRef.getDownloadURL();
+        }).then(url => {
+            photoUrl = url;
+            saveProfileData(nameInput.value, photoUrl);
+        });
+    } else {
+        saveProfileData(nameInput.value, photoUrl);
     }
+}
 
+// Função para salvar dados do perfil
+function saveProfileData(name, photoUrl) {
     database.ref('users/' + userId).set({
-        name: nameInput.value,
-        photoUrl: photoUrl
+        name: name,
+        photoUrl: photoUrl,
+        isVerified: isVerified
+    }).then(() => {
+        alert('Perfil atualizado!');
+    }).catch(error => {
+        console.error('Erro ao atualizar perfil:', error);
+        alert('Erro ao atualizar perfil');
     });
-
-    alert('Perfil atualizado!');
 }
 
 // Postar tweet
@@ -59,70 +79,49 @@ function postTweet() {
     const tweetInput = document.getElementById('tweetInput');
     const tweetText = tweetInput.value.trim();
     
-    console.log('Tentando postar tweet:', tweetText); // Debug
+    if (!tweetText) return;
 
-    if (!tweetText) {
-        console.log('Tweet vazio, não será postado');
-        return;
-    }
-
-    // Referência para tweets no database
-    const tweetsRef = database.ref('tweets');
-
-    // Criar novo tweet
-    const newTweet = {
-        userId: userId,
-        userName: document.getElementById('userNameInput').value || 'Anônimo',
-        userPhoto: document.getElementById('profileImage').src,
-        text: tweetText,
-        timestamp: firebase.database.ServerValue.TIMESTAMP
-    };
-
-    console.log('Dados do tweet:', newTweet); // Debug
-
-    // Enviar para o Firebase
-    tweetsRef.push(newTweet)
-        .then(() => {
-            console.log('Tweet postado com sucesso!');
-            tweetInput.value = ''; // Limpa o input
-            document.getElementById('charCount').textContent = '280'; // Reset contador
-        })
-        .catch(error => {
-            console.error('Erro ao postar tweet:', error);
-            alert('Erro ao postar tweet: ' + error.message);
+    database.ref('users/' + userId).once('value').then((snapshot) => {
+        const userData = snapshot.val();
+        
+        database.ref('tweets').push({
+            userId: userId,
+            userName: userData.name || 'Anônimo',
+            userPhoto: userData.photoUrl || 'https://via.placeholder.com/150',
+            text: tweetText,
+            isVerified: userData.isVerified || false,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
         });
+
+        tweetInput.value = '';
+    });
 }
 
 // Carregar tweets
 function loadTweets() {
     const tweetsContainer = document.getElementById('tweetsContainer');
-    console.log('Iniciando carregamento de tweets'); // Debug
     
-    // Limpa o container antes de carregar
-    tweetsContainer.innerHTML = '';
-    
-    database.ref('tweets')
-        .orderByChild('timestamp')
-        .on('child_added', (snapshot) => {
-            console.log('Novo tweet recebido:', snapshot.val()); // Debug
-            
-            const tweet = snapshot.val();
-            const tweetElement = document.createElement('div');
-            tweetElement.className = 'tweet';
-            
-            const time = new Date(tweet.timestamp).toLocaleString();
-            
-            tweetElement.innerHTML = `
-                <div class="tweet-header">
-                    <img src="${tweet.userPhoto}" alt="Foto de perfil">
+    database.ref('tweets').orderByChild('timestamp').on('child_added', (snapshot) => {
+        const tweet = snapshot.val();
+        const tweetElement = document.createElement('div');
+        tweetElement.className = 'tweet';
+        
+        const time = new Date(tweet.timestamp).toLocaleString();
+        
+        tweetElement.innerHTML = `
+            <div class="tweet-header">
+                <img src="${tweet.userPhoto}" alt="Foto de perfil">
+                <div class="tweet-name-container">
                     <span class="tweet-name">${tweet.userName}</span>
-                    <span class="tweet-time">${time}</span>
+                    ${tweet.isVerified ? '<span class="verified-badge">✓</span>' : ''}
                 </div>
-                <div class="tweet-content">${tweet.text}</div>
-            `;
-            
-            tweetsContainer.insertBefore(tweetElement, tweetsContainer.firstChild);
-        });
+                <span class="tweet-time">${time}</span>
+            </div>
+            <div class="tweet-content">${tweet.text}</div>
+        `;
+        
+        tweetsContainer.insertBefore(tweetElement, tweetsContainer.firstChild);
+    });
 }
 
 // Contador de caracteres

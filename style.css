@@ -185,4 +185,27 @@ body {
         width: 100%;
         max-width: 100%;
     }
+}
+
+/* Adicione ao seu CSS existente */
+.verified-badge {
+    color: #1DA1F2;
+    margin-left: 4px;
+}
+
+.tweet-name-container {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Animação do emblema */
+@keyframes verifiedPop {
+    0% { transform: scale(0); }
+    70% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.verified-badge {
+    animation: verifiedPop 0.3s ease-out;
 } 
