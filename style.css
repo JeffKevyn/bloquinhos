@@ -479,3 +479,20 @@ body {
     display: flex;
     align-items: center;
 }
+
+.badge {
+    margin-left: 4px;
+    font-size: 14px;
+}
+
+.verified {
+    color: #1DA1F2;
+}
+
+.dev {
+    color: #6e5494;
+}
+
+.premium {
+    color: #FFD700;
+}
