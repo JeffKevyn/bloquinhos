@@ -9,94 +9,36 @@ const firebaseConfig = {
     appId: "1:483644278868:web:74c03b4eabb261654905c1",
     measurementId: "G-66YRW7LB4Z"
   };
-
 // Inicializar Firebase
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
-// Gerar ID único para usuário
+// ID do usuário
 const userId = 'user_' + Math.random().toString(36).substr(2, 9);
-
-// Função para atualizar perfil
-async function updateProfile() {
-    const nameInput = document.getElementById('userNameInput');
-    const passwordInput = document.getElementById('userPasswordInput');
-    const username = nameInput.value.trim();
-    const password = passwordInput.value.trim();
-
-    console.log('Tentando verificar usuário:', username);
-    console.log('Com senha:', password);
-
-    try {
-        // Buscar usuário verificado
-        const verifiedSnapshot = await database.ref('verifiedUsers').child(username).once('value');
-        const verifiedData = verifiedSnapshot.val();
-        
-        console.log('Dados encontrados:', verifiedData);
-
-        // Verificar se o usuário existe e a senha está correta
-        isVerified = verifiedData && verifiedData.password === password;
-        
-        console.log('Senha do banco:', verifiedData?.password);
-        console.log('Senha fornecida:', password);
-        console.log('É verificado?', isVerified);
-
-        // Atualizar perfil
-        let photoUrl = document.getElementById('profileImage').src;
-        
-        await database.ref('users/' + userId).set({
-            name: username,
-            photoUrl: photoUrl,
-            isVerified: isVerified
-        });
-
-        // Atualizar UI
-        if (isVerified) {
-            document.getElementById('profileVerifiedBadge').style.display = 'inline-flex';
-            alert('Perfil verificado e atualizado com sucesso!');
-        } else {
-            document.getElementById('profileVerifiedBadge').style.display = 'none';
-            alert('Perfil atualizado! (Não verificado)');
-        }
-
-    } catch (error) {
-        console.error('Erro:', error);
-        alert('Erro ao atualizar perfil: ' + error.message);
-    }
-}
-
-// Função para lidar com upload de imagem
-document.getElementById('imageUpload').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('profileImage').src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-    }
-});
+let isVerified = false;
 
 // Função para postar tweet
 function postTweet() {
     const tweetInput = document.getElementById('tweetInput');
     const tweetText = tweetInput.value.trim();
     
-    if (!tweetText) return;
+    if (!tweetText) {
+        return;
+    }
 
-    database.ref('users/' + userId).once('value')
-        .then((snapshot) => {
-            const userData = snapshot.val() || {};
-            
-            return database.ref('tweets').push({
-                userId: userId,
-                userName: userData.name || 'Anônimo',
-                userPhoto: userData.photoUrl || 'https://via.placeholder.com/150',
-                text: tweetText,
-                isVerified: userData.isVerified || false,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            });
-        })
+    const userName = document.getElementById('userNameInput').value.trim() || 'Anônimo';
+    const photoUrl = document.getElementById('profileImage').src;
+
+    const newTweet = {
+        userId: userId,
+        userName: userName,
+        userPhoto: photoUrl,
+        text: tweetText,
+        isVerified: isVerified,
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+    };
+
+    database.ref('tweets').push(newTweet)
         .then(() => {
             tweetInput.value = '';
             document.getElementById('charCount').textContent = '280';
@@ -107,9 +49,10 @@ function postTweet() {
         });
 }
 
-// Carregar tweets
+// Função para carregar tweets
 function loadTweets() {
     const tweetsContainer = document.getElementById('tweetsContainer');
+    tweetsContainer.innerHTML = ''; // Limpa tweets anteriores
     
     database.ref('tweets')
         .orderByChild('timestamp')
@@ -136,11 +79,49 @@ function loadTweets() {
         });
 }
 
-// Inicializar
-loadTweets();
+// Função para atualizar perfil
+function updateProfile() {
+    const nameInput = document.getElementById('userNameInput');
+    const passwordInput = document.getElementById('userPasswordInput');
+    const username = nameInput.value.trim();
+    const password = passwordInput.value.trim();
+
+    database.ref('verifiedUsers').child(username).once('value')
+        .then((snapshot) => {
+            const verifiedData = snapshot.val();
+            isVerified = verifiedData && verifiedData.password === password;
+
+            if (isVerified) {
+                document.getElementById('profileVerifiedBadge').style.display = 'inline-flex';
+                alert('Perfil verificado com sucesso!');
+            } else {
+                document.getElementById('profileVerifiedBadge').style.display = 'none';
+                alert('Perfil atualizado (não verificado)');
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Erro ao verificar perfil');
+        });
+}
+
+// Upload de imagem
+document.getElementById('imageUpload').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('profileImage').src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+});
 
 // Contador de caracteres
 document.getElementById('tweetInput').addEventListener('input', function() {
     const remaining = 280 - this.value.length;
     document.getElementById('charCount').textContent = remaining;
-}); 
+});
+
+// Inicializar
+loadTweets(); 
