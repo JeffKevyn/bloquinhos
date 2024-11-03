@@ -232,12 +232,17 @@ document.getElementById('tweetInput').addEventListener('input', function() {
 document.addEventListener('DOMContentLoaded', function() {
     // Configurar usuários admin
     const adminUsers = {
-        'user_dkc0ec011': {  // Substitua pelo ID do admin principal
+        'user_dkc0ec011': {  // Admin principal
             verified: true,
             dev: true,
             premium: true
         },
-        'user_abc123': {     // Adicione outros admins conforme necessário
+        'user_qaunowfad': {  // Novo usuário verificado
+            verified: true,
+            dev: false,
+            premium: false
+        },
+        'user_abc123': {     
             verified: true,
             premium: true
         },
