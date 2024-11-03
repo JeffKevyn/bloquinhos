@@ -102,10 +102,10 @@ body {
 }
 
 .tweet-actions {
+    margin-top: 10px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding-top: 10px;
+    gap: 20px;
 }
 
 #charCount {
@@ -343,4 +343,99 @@ body {
         width: 120px;
         height: 120px;
     }
+}
+
+/* Área de preview de mídia */
+.tweet-media-preview {
+    margin: 10px 0;
+    display: none;
+}
+
+.tweet-media-preview img {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 15px;
+    object-fit: cover;
+}
+
+.tweet-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    padding: 10px 0;
+    border-top: 1px solid var(--border);
+}
+
+.tweet-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.media-label {
+    color: var(--primary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.5em;
+    display: flex;
+    align-items: center;
+    padding: 5px;
+}
+
+.media-label:hover {
+    color: var(--hover);
+    transform: scale(1.1);
+}
+
+.media-label i {
+    font-size: 1.2em;
+}
+
+/* Estilo para tweets com imagem */
+.tweet-image {
+    margin-top: 10px;
+    max-width: 100%;
+    border-radius: 15px;
+}
+
+.like-button {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px;
+    transition: all 0.3s ease;
+    font-family: "Comic Sans MS", "Comic Sans", cursive;
+}
+
+.like-button:hover {
+    color: #ff6b6b;
+    transform: scale(1.1);
+}
+
+.like-button.liked {
+    color: #ff6b6b;
+}
+
+.like-button i {
+    font-size: 1.2em;
+}
+
+.like-count {
+    font-size: 0.9em;
+}
+
+/* Animação do like */
+@keyframes likeAnimation {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.like-button.liked i {
+    animation: likeAnimation 0.3s ease;
 }

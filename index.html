@@ -14,6 +14,7 @@
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
     <div class="app-container">
@@ -39,15 +40,17 @@
         <!-- Área principal -->
         <div class="main-content">
             <div class="tweet-box">
-                <textarea 
-                    id="tweetInput" 
-                    class="tweet-textarea" 
-                    placeholder="O que está você está Bloquando?"
-                    maxlength="280"
-                ></textarea>
-                <div class="tweet-actions">
-                    <span id="charCount">280</span>
-                    <button onclick="postTweet()" class="btn btn-primary">Tweetar</button>
+                <textarea id="tweetInput" class="tweet-textarea" placeholder="O que está acontecendo?" maxlength="280"></textarea>
+                <div class="tweet-media-preview" id="tweetMediaPreview"></div>
+                <div class="tweet-footer">
+                    <div class="tweet-actions">
+                        <label for="tweetImageInput" class="media-label">
+                            <i class="fa-regular fa-image"></i>
+                            <input type="file" id="tweetImageInput" accept="image/*" style="display: none;">
+                        </label>
+                        <span id="charCount">280</span>
+                    </div>
+                    <button onclick="postTweet()" class="btn btn-primary">Postar</button>
                 </div>
             </div>
             <div id="tweetsContainer" class="tweets-container">

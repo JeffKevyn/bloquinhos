@@ -16,12 +16,42 @@ const database = firebase.database();
 // ID do usuário
 const userId = 'user_' + Math.random().toString(36).substr(2, 9);
 
-// Função para postar tweet
+// Variável global para armazenar a imagem do tweet
+let tweetImage = null;
+
+// Função para lidar com a seleção de imagem do tweet
+document.getElementById('tweetImageInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            tweetImage = e.target.result;
+            // Mostrar preview
+            const previewContainer = document.getElementById('tweetMediaPreview');
+            previewContainer.style.display = 'block';
+            previewContainer.innerHTML = `
+                <img src="${tweetImage}" alt="Preview">
+                <button onclick="removeTweetImage()" class="btn btn-small">✕</button>
+            `;
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// Função para remover a imagem do tweet
+function removeTweetImage() {
+    tweetImage = null;
+    document.getElementById('tweetMediaPreview').style.display = 'none';
+    document.getElementById('tweetMediaPreview').innerHTML = '';
+    document.getElementById('tweetImageInput').value = '';
+}
+
+// Função atualizada para postar tweet
 function postTweet() {
     const tweetInput = document.getElementById('tweetInput');
     const tweetText = tweetInput.value.trim();
     
-    if (!tweetText) {
+    if (!tweetText && !tweetImage) {
         return;
     }
 
@@ -33,6 +63,9 @@ function postTweet() {
         userName: userName,
         userPhoto: photoUrl,
         text: tweetText,
+        image: tweetImage,
+        likes: 0,
+        likedBy: {},
         timestamp: firebase.database.ServerValue.TIMESTAMP
     };
 
@@ -40,6 +73,7 @@ function postTweet() {
         .then(() => {
             tweetInput.value = '';
             document.getElementById('charCount').textContent = '280';
+            removeTweetImage();
         })
         .catch(error => {
             console.error('Erro ao postar tweet:', error);
@@ -47,15 +81,45 @@ function postTweet() {
         });
 }
 
-// Função para carregar tweets
+// Função para dar/remover like
+function toggleLike(tweetId) {
+    const tweetRef = database.ref('tweets/' + tweetId);
+    
+    tweetRef.once('value')
+        .then((snapshot) => {
+            const tweet = snapshot.val();
+            const likedBy = tweet.likedBy || {};
+            
+            if (likedBy[userId]) {
+                // Remove o like
+                likedBy[userId] = null;
+                tweetRef.update({
+                    likes: (tweet.likes || 0) - 1,
+                    likedBy: likedBy
+                });
+            } else {
+                // Adiciona o like
+                likedBy[userId] = true;
+                tweetRef.update({
+                    likes: (tweet.likes || 0) + 1,
+                    likedBy: likedBy
+                });
+            }
+        });
+}
+
+// Função atualizada para carregar tweets
 function loadTweets() {
     const tweetsContainer = document.getElementById('tweetsContainer');
-    tweetsContainer.innerHTML = ''; // Limpa tweets anteriores
+    tweetsContainer.innerHTML = '';
     
     database.ref('tweets')
         .orderByChild('timestamp')
         .on('child_added', (snapshot) => {
             const tweet = snapshot.val();
+            const tweetId = snapshot.key;
+            const isLiked = tweet.likedBy && tweet.likedBy[userId];
+            
             const tweetElement = document.createElement('div');
             tweetElement.className = 'tweet';
             
@@ -70,10 +134,31 @@ function loadTweets() {
                     <span class="tweet-time">${time}</span>
                 </div>
                 <div class="tweet-content">${tweet.text}</div>
+                ${tweet.image ? `<img src="${tweet.image}" alt="Tweet image" class="tweet-image">` : ''}
+                <div class="tweet-actions">
+                    <button onclick="toggleLike('${tweetId}')" class="like-button ${isLiked ? 'liked' : ''}">
+                        <i class="fa-heart ${isLiked ? 'fas' : 'far'}"></i>
+                        <span class="like-count">${tweet.likes || 0}</span>
+                    </button>
+                </div>
             `;
             
             tweetsContainer.insertBefore(tweetElement, tweetsContainer.firstChild);
         });
+
+    // Atualizar contagem de likes em tempo real
+    database.ref('tweets').on('child_changed', (snapshot) => {
+        const tweet = snapshot.val();
+        const tweetId = snapshot.key;
+        const isLiked = tweet.likedBy && tweet.likedBy[userId];
+        
+        const likeButton = document.querySelector(`[onclick="toggleLike('${tweetId}')"]`);
+        if (likeButton) {
+            likeButton.className = `like-button ${isLiked ? 'liked' : ''}`;
+            likeButton.querySelector('i').className = `fa-heart ${isLiked ? 'fas' : 'far'}`;
+            likeButton.querySelector('.like-count').textContent = tweet.likes || 0;
+        }
+    });
 }
 
 // Upload de imagem
