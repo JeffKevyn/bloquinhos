@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TweetChat</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Área do Chat (visível inicialmente) -->
+        <div id="chatArea">
+            <div class="main-container">
+                <!-- Sidebar esquerda -->
+                <div class="sidebar">
+                    <div class="profile-card">
+                        <img id="userPhoto" src="" alt="Foto de perfil" class="profile-pic">
+                        <div class="profile-info">
+                            <span id="userName" class="user-name"></span>
+                            <button onclick="logout()" class="btn btn-outline-danger btn-sm">Sair</button>
+                        </div>
+                    </div>
+                    <div class="online-users">
+                        <h5>Usuários Online</h5>
+                        <div id="onlineUsersList">
+                            <!-- Lista de usuários online será inserida aqui -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Área principal de tweets -->
+                <div class="main-content">
+                    <div class="tweet-input-area">
+                        <textarea 
+                            id="tweetInput" 
+                            placeholder="O que está acontecendo?"
+                            maxlength="280"
+                        ></textarea>
+                        <div class="tweet-actions">
+                            <span id="charCount">280</span>
+                            <button onclick="sendTweet()" class="btn btn-primary">Tweetar</button>
+                        </div>
+                    </div>
+
+                    <div id="tweetsContainer" class="tweets-container">
+                        <!-- Tweets serão inseridos aqui dinamicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Área de Login (oculta inicialmente) -->
+        <div id="loginArea" style="display: none;">
+            <h2>Login TweetChat</h2>
+            <input type="text" id="loginUsername" placeholder="Nome de usuário" class="form-control">
+            <input type="password" id="loginPassword" placeholder="Senha" class="form-control">
+            <button onclick="login()" class="btn btn-primary">Entrar</button>
+            <p>Não tem conta? <span onclick="toggleAuth()" class="toggle-link">Cadastre-se</span></p>
+        </div>
+
+        <!-- Área de Registro (oculta inicialmente) -->
+        <div id="registerArea" style="display: none;">
+            <h2>Criar Conta</h2>
+            <input type="text" id="regUsername" placeholder="Nome de usuário" class="form-control">
+            <input type="password" id="regPassword" placeholder="Senha" class="form-control">
+            <input type="text" id="regPhotoUrl" placeholder="URL da foto de perfil" class="form-control">
+            <button onclick="register()" class="btn btn-primary">Cadastrar</button>
+            <p>Já tem conta? <span onclick="toggleAuth()" class="toggle-link">Faça login</span></p>
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-database-compat.js"></script>
+    <script src="script.js"></script>
+
+    <!-- Adicione temporariamente para teste -->
+    <button onclick="testUISwitch()" style="position: fixed; top: 10px; right: 10px;">
+        Testar Mudança de Tela
+    </button>
+</body>
+</html>
