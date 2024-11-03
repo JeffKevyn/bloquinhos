@@ -1,10 +1,10 @@
 :root {
-    --gold-primary: #FFD700;
-    --gold-dark: #B8860B;
-    --gold-light: #FFF8DC;
-    --gold-hover: #DAA520;
-    --background-dark: #1a1814;
-    --text-light: #FFF8DC;
+    --gold-primary: #FFD700;      /* Dourado brilhante */
+    --gold-secondary: #DAA520;    /* Dourado mais escuro */
+    --gold-light: #FFDF00;        /* Amarelo dourado */
+    --gold-pale: #FFF8DC;         /* Creme dourado */
+    --gold-dark: #B8860B;         /* Dourado escuro */
+    --background: #2C2810;        /* Fundo escuro dourado */
 }
 
 * {
@@ -15,8 +15,8 @@
 
 body {
     font-family: Arial, sans-serif;
-    background-color: var(--background-dark);
-    color: var(--text-light);
+    background-color: var(--background);
+    color: var(--gold-pale);
     min-height: 100vh;
     margin: 0;
     padding: 0;
@@ -34,10 +34,10 @@ body {
 
 /* Sidebar */
 .profile-sidebar {
-    background-color: rgba(184, 134, 11, 0.1);
+    background-color: rgba(218, 165, 32, 0.1);
+    border: 1px solid var(--gold-secondary);
     padding: 20px;
     border-radius: 15px;
-    border: 1px solid var(--gold-dark);
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -56,7 +56,8 @@ body {
     height: 150px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid var(--gold-primary);
+    border: 2px solid var(--gold-primary);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
 }
 
 .profile-info {
@@ -71,20 +72,20 @@ body {
 }
 
 .tweet-box {
-    background-color: rgba(184, 134, 11, 0.1);
+    background-color: rgba(218, 165, 32, 0.1);
+    border: 1px solid var(--gold-secondary);
     padding: 20px;
     border-radius: 15px;
-    border: 1px solid var(--gold-dark);
     margin-bottom: 20px;
 }
 
 .tweet-textarea {
     width: 100%;
     min-height: 100px;
-    background-color: rgba(255, 248, 220, 0.1);
-    border: 1px solid var(--gold-dark);
+    background-color: rgba(255, 223, 0, 0.1);
+    border: 1px solid var(--gold-secondary);
     border-radius: 10px;
-    color: var(--text-light);
+    color: var(--gold-pale);
     font-size: 1.1em;
     resize: none;
     padding: 15px;
@@ -116,17 +117,17 @@ body {
 }
 
 .tweet {
-    background-color: rgba(184, 134, 11, 0.1);
+    background-color: rgba(218, 165, 32, 0.1);
+    border: 1px solid var(--gold-secondary);
     padding: 20px;
     border-radius: 15px;
-    border: 1px solid var(--gold-dark);
     margin-bottom: 15px;
     transition: all 0.3s ease;
 }
 
 .tweet:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(218, 165, 32, 0.1);
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.1);
 }
 
 .tweet-header {
@@ -163,8 +164,8 @@ body {
 /* Botões */
 .btn-primary {
     background-color: var(--gold-primary);
+    color: var(--background);
     border: none;
-    color: var(--background-dark);
     font-weight: bold;
     padding: 10px 20px;
     border-radius: 20px;
@@ -172,9 +173,9 @@ body {
 }
 
 .btn-primary:hover {
-    background-color: var(--gold-hover);
+    background-color: var(--gold-secondary);
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(218, 165, 32, 0.3);
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
 }
 
 /* Animações */
@@ -238,7 +239,7 @@ body {
 .verified-badge::before {
     content: "✓";
     background-color: var(--gold-primary);
-    color: var(--background-dark);
+    color: var(--background);
     border-radius: 50%;
     font-size: 11px;
     font-weight: bold;
@@ -247,7 +248,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 0 0 2px var(--background-dark);
+    box-shadow: 0 0 0 2px var(--background);
     animation: verifiedPop 0.3s ease-out;
 }
 
@@ -284,9 +285,9 @@ body {
 
 /* Inputs */
 .form-control {
-    background-color: rgba(255, 248, 220, 0.1);
-    border: 1px solid var(--gold-dark);
-    color: var(--text-light);
+    background-color: rgba(255, 223, 0, 0.1);
+    border: 1px solid var(--gold-secondary);
+    color: var(--gold-pale);
     border-radius: 10px;
     padding: 10px 15px;
     transition: all 0.3s ease;
@@ -309,13 +310,13 @@ body {
 }
 
 .logo-image {
-    width: 200px;
-    height: 200px;
+    width: 120px;
+    height: 120px;
     object-fit: cover;
-    border-radius: 20px;
+    border-radius: 15px;
     margin-bottom: 15px;
-    border: 3px solid var(--gold-primary);
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+    border: 2px solid var(--gold-primary);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
     transition: all 0.3s ease;
 }
 
