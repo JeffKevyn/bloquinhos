@@ -173,29 +173,27 @@ function loadTweets() {
             const tweetId = snapshot.key;
             const isLiked = tweet.likedBy && tweet.likedBy[userId];
             
-            const tweetElement = document.createElement('div');
-            tweetElement.className = 'tweet';
-            
-            const time = new Date(tweet.timestamp).toLocaleString();
-            
-            // Verifica se o usuário está verificado
-            database.ref('verifiedUsers/' + tweet.userId).once('value')
+            // Verifica se o usuário é admin
+            database.ref('UserADM/' + tweet.userId).once('value')
                 .then((snapshot) => {
-                    const isVerified = snapshot.exists();
+                    const isAdmin = snapshot.exists();
+                    const adminData = snapshot.val() || {};
+                    
+                    const tweetElement = document.createElement('div');
+                    tweetElement.className = 'tweet';
+                    
+                    const time = new Date(tweet.timestamp).toLocaleString();
                     
                     tweetElement.innerHTML = `
                         <div class="tweet-header">
                             <img src="${tweet.userPhoto}" alt="Foto de perfil">
                             <div class="tweet-name-container">
                                 <span class="tweet-name">${tweet.userName}</span>
-                                ${isVerified ? '<i class="fas fa-badge-check verified-badge"></i>' : ''}
+                                ${isAdmin ? '<i class="fas fa-badge-check verified-badge"></i>' : ''}
+                                ${adminData.dev ? '<i class="fas fa-code dev-badge"></i>' : ''}
+                                ${adminData.premium ? '<i class="fas fa-crown premium-badge"></i>' : ''}
+                                <span class="tweet-time">${time}</span>
                             </div>
-                            <span class="tweet-time">${time}</span>
-                            ${ADMIN_IDS.includes(userId) ? `
-                                <button onclick="toggleVerification('${tweet.userId}')" class="verify-button">
-                                    ${isVerified ? 'Remover Verificação' : 'Verificar Usuário'}
-                                </button>
-                            ` : ''}
                         </div>
                         <div class="tweet-content">${tweet.text}</div>
                         ${tweet.image ? `<img src="${tweet.image}" alt="Tweet image" class="tweet-image">` : ''}
@@ -209,36 +207,6 @@ function loadTweets() {
                     
                     tweetsContainer.insertBefore(tweetElement, tweetsContainer.firstChild);
                 });
-        });
-}
-
-// Função para alternar verificação
-function toggleVerification(targetUserId) {
-    if (!ADMIN_IDS.includes(userId)) {
-        alert('Você não tem permissão para verificar usuários');
-        return;
-    }
-
-    const verifiedRef = database.ref('verifiedUsers/' + targetUserId);
-    
-    verifiedRef.once('value')
-        .then((snapshot) => {
-            const isVerified = snapshot.exists();
-            
-            if (isVerified) {
-                // Remove a verificação
-                return verifiedRef.remove();
-            } else {
-                // Adiciona a verificação
-                return verifiedRef.set(true);
-            }
-        })
-        .then(() => {
-            loadTweets(); // Recarrega os tweets para atualizar a visualização
-        })
-        .catch((error) => {
-            console.error('Erro ao alternar verificação:', error);
-            alert('Erro ao alternar verificação');
         });
 }
 
@@ -262,30 +230,35 @@ document.getElementById('tweetInput').addEventListener('input', function() {
 
 // Configuração inicial
 document.addEventListener('DOMContentLoaded', function() {
-    // Configurar usuários verificados
-    const verifiedUsers = {
-        'BeqiDev': true,
-        'ModeradorTop': true,
-        'VipUser': true
-        // Adicione mais usuários verificados aqui
+    // Configurar usuários admin
+    const adminUsers = {
+        'user_dkc0ec011': {  // Substitua pelo ID do admin principal
+            verified: true,
+            dev: true,
+            premium: true
+        },
+        'user_abc123': {     // Adicione outros admins conforme necessário
+            verified: true,
+            premium: true
+        },
+        'user_xyz789': {
+            verified: true,
+            dev: true
+        }
+        // Adicione mais usuários admin aqui
     };
 
-    database.ref('verifiedUsers').set(verifiedUsers)
+    // Criar ou atualizar o nó UserADM
+    database.ref('UserADM').set(adminUsers)
         .then(() => {
-            console.log('Usuários verificados configurados com sucesso!');
+            console.log('Usuários admin configurados com sucesso!');
         })
         .catch(error => {
-            console.error('Erro ao configurar usuários verificados:', error);
+            console.error('Erro ao configurar usuários admin:', error);
         });
 
     // Inicializar outras funções
     loadTweets();
-    
-    // Contador de caracteres
-    document.getElementById('tweetInput').addEventListener('input', function() {
-        const remaining = 280 - this.value.length;
-        document.getElementById('charCount').textContent = remaining;
-    });
 });
 
 // Função para verificar se um usuário está na lista de verificados
@@ -323,7 +296,7 @@ function removeVerifiedUser(userId) {
 }
 
 // Sistema de Verificação por ID
-const ADMIN_IDS = ['user_qaunowfad']; // Substitua pelo seu ID real
+const ADMIN_IDS = ['user_dkc0ec011']; // Substitua pelo seu ID real
 
 // Função para verificar usuário por ID
 function verifyUser(targetUserId) {
@@ -398,19 +371,20 @@ function renderTweet(tweet, container) {
 
 // Adicione estes estilos CSS
 const styles = `
-    .verify-button {
-        background-color: #1DA1F2;
-        color: white;
-        border: none;
-        padding: 5px 10px;
-        border-radius: 4px;
-        cursor: pointer;
-        margin-left: 10px;
-        font-size: 12px;
-    }
-
     .verified-badge {
         color: #1DA1F2;
+        margin-left: 4px;
+        font-size: 14px;
+    }
+
+    .dev-badge {
+        color: #6e5494;
+        margin-left: 4px;
+        font-size: 14px;
+    }
+
+    .premium-badge {
+        color: #FFD700;
         margin-left: 4px;
         font-size: 14px;
     }
@@ -425,27 +399,4 @@ const styles = `
 const styleSheet = document.createElement("style");
 styleSheet.innerText = styles;
 document.head.appendChild(styleSheet);
-
-// Função para verificar status (debug)
-function checkStatus() {
-    console.log('=== STATUS DO SISTEMA ===');
-    console.log('Seu ID:', userId);
-    console.log('Lista de Admins:', ADMIN_IDS);
-    console.log('É admin?', ADMIN_IDS.includes(userId));
-    
-    // Verificar usuários verificados
-    database.ref('verifiedUsers').once('value')
-        .then(snapshot => {
-            console.log('Usuários Verificados (por ID):', snapshot.val());
-        });
-}
-
-// Adicione um botão de debug na interface
-document.addEventListener('DOMContentLoaded', function() {
-    const debugButton = document.createElement('button');
-    debugButton.innerHTML = 'Verificar Status';
-    debugButton.onclick = checkStatus;
-    debugButton.style.margin = '10px';
-    document.body.insertBefore(debugButton, document.body.firstChild);
-});
   
