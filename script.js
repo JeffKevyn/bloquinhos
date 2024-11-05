@@ -1,12 +1,13 @@
 // Configuração do Firebase
 const firebaseConfig = {
-    apiKey: "AIzaSyAiQwg5sxVTQqVT5-9_144LRkXwUYEQyxg",
-    authDomain: "bloquinhos-b1478.firebaseapp.com",
-    databaseURL: "https://bloquinhos-b1478-default-rtdb.firebaseio.com",
-    projectId: "bloquinhos-b1478",
-    storageBucket: "bloquinhos-b1478.appspot.com",
-    messagingSenderId: "46091311744",
-    appId: "1:46091311744:web:a5e1ab6d9f5a8d0b9f0e1a"
+  apiKey: "AIzaSyAWSZlplTEvEH5uKBLdG16gRdivxVqpTNc",
+  authDomain: "witterquinhos.firebaseapp.com",
+  databaseURL: "https://witterquinhos-default-rtdb.firebaseio.com",
+  projectId: "witterquinhos",
+  storageBucket: "witterquinhos.firebasestorage.app",
+  messagingSenderId: "1058191243094",
+  appId: "1:1058191243094:web:c4424c955381d648f288f7",
+  measurementId: "G-9VDZ5W58P3"
 };
 
 // Initialize Firebase
